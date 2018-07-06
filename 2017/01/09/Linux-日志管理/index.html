@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>Linux 日志管理 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="管理日志的一个最好做法是将你的日志集中或整合到一个地方，特别是在你有许多服务器或多层级架构时。我们将告诉你为什么这是一个好主意，然后给出如何更容易的做这件事的一些小技巧。">
+<meta name="keywords" content="rsyslog,syslog-ng,logstash,fluentd">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux 日志管理">
+<meta property="og:url" content="http://yoursite.com/2017/01/09/Linux-日志管理/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="管理日志的一个最好做法是将你的日志集中或整合到一个地方，特别是在你有许多服务器或多层级架构时。我们将告诉你为什么这是一个好主意，然后给出如何更容易的做这件事的一些小技巧。">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2018-07-06T08:56:55.769Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Linux 日志管理">
+<meta name="twitter:description" content="管理日志的一个最好做法是将你的日志集中或整合到一个地方，特别是在你有许多服务器或多层级架构时。我们将告诉你为什么这是一个好主意，然后给出如何更容易的做这件事的一些小技巧。">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Linux-日志管理" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/01/09/Linux-日志管理/" class="article-date">
+  <time datetime="2017-01-09T10:15:09.000Z" itemprop="datePublished">2017-01-09</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Linux管理/">Linux管理</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Linux 日志管理
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>管理日志的一个最好做法是将你的日志集中或整合到一个地方，特别是在你有许多服务器或多层级架构时。我们将告诉你为什么这是一个好主意，然后给出如何更容易的做这件事的一些小技巧。</p>
+<a id="more"></a>
+<h3 id="集中管理日志的好处"><a href="#集中管理日志的好处" class="headerlink" title="集中管理日志的好处"></a>集中管理日志的好处</h3><p>如果你有很多服务器，查看某个日志文件可能会很麻烦。现代的网站和服务经常包括许多服务器层级、分布式的负载均衡器，等等。找到正确的日志将花费很长时间，甚至要花更长时间在登录服务器的相关问题上。没什么比发现你找的信息没有被保存下来更沮丧的了，或者本该保留的日志文件正好在重启后丢失了。</p>
+<p>集中你的日志使它们查找更快速，可以帮助你更快速的解决产品问题。你不用猜测那个服务器存在问题，因为所有的日志在同一个地方。此外，你可以使用更强大的工具去分析它们，包括日志管理解决方案。一些解决方案能<a href="https://docs.google.com/document/d/11LXZxWlkNSHkcrCWTUdnLRf_CiZz9kK0cr3yGM_BU_0/edit#heading=h.esrreycnpnbl" target="_blank" rel="noopener">转换纯文本日志</a>为一些字段，更容易查找和分析。</p>
+<p>集中你的日志也可以使它们更易于管理：</p>
+<ul>
+<li>它们更安全，当它们备份归档到一个单独区域时会有意无意地丢失。如果你的服务器宕机或者无响应，你可以使用集中的日志去调试问题。</li>
+<li>你不用担心ssh或者低效的grep命令在陷入困境的系统上需要更多的资源。</li>
+<li>你不用担心磁盘占满，这个能让你的服务器死机。</li>
+<li>你能保持你的产品服务器的安全性，只是为了查看日志无需给你所有团队登录权限。给你的团队从日志集中区域访问日志权限更安全。</li>
+</ul>
+<p>随着集中日志管理，你仍需处理由于网络联通性不好或者耗尽大量网络带宽从而导致不能传输日志到中心区域的风险。在下面的章节我们将要讨论如何聪明的解决这些问题。</p>
+<h3 id="流行的日志归集工具"><a href="#流行的日志归集工具" class="headerlink" title="流行的日志归集工具"></a>流行的日志归集工具</h3><p>在 Linux 上最常见的日志归集是通过使用 syslog 守护进程或者日志代理。syslog 守护进程支持本地日志的采集，然后通过syslog 协议传输日志到中心服务器。你可以使用很多流行的守护进程来归集你的日志文件：</p>
+<ul>
+<li><a href="http://www.rsyslog.com/" target="_blank" rel="noopener">rsyslog</a> 是一个轻量后台程序，在大多数 Linux 分支上已经安装。</li>
+<li><a href="http://www.balabit.com/network-security/syslog-ng/opensource-logging-system" target="_blank" rel="noopener">syslog-ng</a> 是第二流行的 Linux 系统日志后台程序。</li>
+<li><a href="http://logstash.net/" target="_blank" rel="noopener">logstash</a> 是一个重量级的代理，它可以做更多高级加工和分析。</li>
+<li><a href="http://www.fluentd.org/" target="_blank" rel="noopener">fluentd</a> 是另一个具有高级处理能力的代理。</li>
+</ul>
+<p>Rsyslog 是集中日志数据最流行的后台程序，因为它在大多数 Linux 分支上是被默认安装的。你不用下载或安装它，并且它是轻量的，所以不需要占用你太多的系统资源。</p>
+<p>如果你需要更多先进的过滤或者自定义分析功能，如果你不在乎额外的系统负载，Logstash 是另一个最流行的选择。</p>
+<h3 id="配置-rsyslog-conf"><a href="#配置-rsyslog-conf" class="headerlink" title="配置 rsyslog.conf"></a>配置 rsyslog.conf</h3><p>既然 rsyslog 是最广泛使用的系统日志程序，我们将展示如何配置它为日志中心。它的全局配置文件位于 /etc/rsyslog.conf。它加载模块，设置全局指令，和包含位于目录 /etc/rsyslog.d 中的应用的特有的配置。目录中包含的 /etc/rsyslog.d/50-default.conf 指示 rsyslog 将系统日志写到文件。在 <a href="http://www.rsyslog.com/doc/rsyslog_conf.html" target="_blank" rel="noopener">rsyslog 文档</a>中你可以阅读更多相关配置。</p>
+<p>rsyslog 配置语言是是<a href="http://www.rsyslog.com/doc/master/rainerscript/index.html" target="_blank" rel="noopener">RainerScript</a>。你可以给日志指定输入，就像将它们输出到另外一个位置一样。rsyslog 已经配置标准输入默认是 syslog ，所以你通常只需增加一个输出到你的日志服务器。这里有一个 rsyslog 输出到一个外部服务器的配置例子。在本例中，<strong>BEBOP</strong> 是一个服务器的主机名，所以你应该替换为你的自己的服务器名。</p>
+<pre><code>action(type=&quot;omfwd&quot; protocol=&quot;tcp&quot; target=&quot;BEBOP&quot; port=&quot;514&quot;)
+</code></pre><p>你可以发送你的日志到一个有足够的存储容量的日志服务器来存储，提供查询，备份和分析。如果你存储日志到文件系统，那么你应该建立<a href="https://docs.google.com/document/d/11LXZxWlkNSHkcrCWTUdnLRf_CiZz9kK0cr3yGM_BU_0/edit#heading=h.eck7acdxin87" target="_blank" rel="noopener">日志轮转</a>来防止你的磁盘爆满。</p>
+<p>作为一种选择，你可以发送这些日志到一个日志管理方案。如果你的解决方案是安装在本地你可以发送到系统文档中指定的本地主机和端口。如果你使用基于云提供商，你将发送它们到你的提供商特定的主机名和端口。</p>
+<h3 id="日志目录"><a href="#日志目录" class="headerlink" title="日志目录"></a>日志目录</h3><p>你可以归集一个目录或者匹配一个通配符模式的所有文件。nxlog 和 syslog-ng 程序支持目录和通配符(*)。</p>
+<p>常见的 rsyslog 不能直接监控目录。作为一种解决办法，你可以设置一个定时任务去监控这个目录的新文件，然后配置 rsyslog 来发送这些文件到目的地，比如你的日志管理系统。举个例子，日志管理提供商 Loggly 有一个开源版本的<a href="https://www.loggly.com/docs/file-monitoring/" target="_blank" rel="noopener">目录监控脚本</a>。</p>
+<h3 id="哪个协议-UDP、TCP-或-RELP"><a href="#哪个协议-UDP、TCP-或-RELP" class="headerlink" title="哪个协议: UDP、TCP 或 RELP?"></a>哪个协议: UDP、TCP 或 RELP?</h3><p>当你使用网络传输数据时，有三个主流协议可以选择。UDP 在你自己的局域网是最常用的，TCP 用在互联网。如果你不能失去（任何）日志，就要使用更高级的 RELP 协议。</p>
+<p><a href="http://www.networksorcery.com/enp/protocol/udp.htm" target="_blank" rel="noopener">UDP</a> 发送一个数据包，那只是一个单一的信息包。它是一个只外传的协议，所以它不会发送给你回执（ACK）。它只尝试发送包。当网络拥堵时，UDP 通常会巧妙的降级或者丢弃日志。它通常使用在类似局域网的可靠网络。</p>
+<p><a href="http://www.networksorcery.com/enp/protocol/tcp.htm" target="_blank" rel="noopener">TCP</a> 通过多个包和返回确认发送流式信息。TCP 会多次尝试发送数据包，但是受限于 <a href="http://blog.gerhards.net/2008/04/on-unreliability-of-plain-tcp-syslog.html" target="_blank" rel="noopener">TCP 缓存</a>的大小。这是在互联网上发送送日志最常用的协议。</p>
+<p><a href="http://www.rsyslog.com/doc/relp.html" target="_blank" rel="noopener">RELP</a> 是这三个协议中最可靠的，但是它是为 rsyslog 创建的，而且很少有行业采用。它在应用层接收数据，如果有错误就会重发。请确认你的日志接受位置也支持这个协议。</p>
+<p>logrotate 工具使用的主配置文件是 /etc/logrotate.conf，应用特有设置在 /etc/logrotate.d/ 目录下。DigitalOcean 有一个详细的 <a href="https://www.digitalocean.com/community/tutorials/how-to-manage-log-files-with-logrotate-on-ubuntu-12-10" target="_blank" rel="noopener">logrotate 教程</a></p>
+<h3 id="管理很多服务器的配置"><a href="#管理很多服务器的配置" class="headerlink" title="管理很多服务器的配置"></a>管理很多服务器的配置</h3><p>当你只有很少的服务器，你可以登录上去手动配置。一旦你有几打或者更多服务器，你可以利用工具的优势使这变得更容易和更可扩展。基本上，所有的事情就是拷贝你的 rsyslog 配置到每个服务器，然后重启 rsyslog 使更改生效。</p>
+<h4 id="pssh"><a href="#pssh" class="headerlink" title="pssh"></a>pssh</h4><p>这个工具可以让你在很多服务器上并行的运行一个 ssh 命令。使用 pssh 部署仅用于少量服务器。如果你其中一个服务器失败，然后你必须 ssh 到失败的服务器，然后手动部署。如果你有很多服务器失败，那么手动部署它们会话费很长时间。</p>
+<h4 id="Puppet-Chef"><a href="#Puppet-Chef" class="headerlink" title="Puppet/Chef"></a>Puppet/Chef</h4><p>Puppet 和 Chef 是两个不同的工具，它们能在你的网络按你规定的标准自动的配置所有服务器。它们的报表工具可以使你了解错误情况，然后定期重新同步。Puppet 和 Chef 都有一些狂热的支持者。如果你不确定那个更适合你的部署配置管理，你可以拜读一下 <a href="http://www.infoworld.com/article/2614204/data-center/puppet-or-chef--the-configuration-management-dilemma.html" target="_blank" rel="noopener">InfoWorld 上这两个工具的对比</a></p>
+<p>一些厂商也提供一些配置 rsyslog 的模块或者方法。这有一个 Loggly 上 Puppet 模块的例子。它提供给 rsyslog 一个类，你可以添加一个标识令牌：</p>
+<pre><code>node &apos;my_server_node.example.net&apos; {
+  # Send syslog events to Loggly
+  class { &apos;loggly::rsyslog&apos;:
+    customer_token =&gt; &apos;de7b5ccd-04de-4dc4-fbc9-501393600000&apos;,
+  }
+}
+</code></pre><h4 id="Docker"><a href="#Docker" class="headerlink" title="Docker"></a>Docker</h4><p>Docker 使用容器去运行应用，不依赖于底层服务。所有东西都运行在内部的容器，你可以把它想象为一个功能单元。ZDNet 有一篇关于在你的数据中心<a href="http://www.zdnet.com/article/what-is-docker-and-why-is-it-so-darn-popular/" target="_blank" rel="noopener">使用 Docker</a> 的深入文章。</p>
+<p>这里有很多方式从 Docker 容器记录日志，包括链接到一个日志容器，记录到一个共享卷，或者直接在容器里添加一个 sysllog 代理。其中最流行的日志容器叫做 <a href="https://github.com/progrium/logspout" target="_blank" rel="noopener">logspout</a>。</p>
+<h4 id="供应商的脚本或代理"><a href="#供应商的脚本或代理" class="headerlink" title="供应商的脚本或代理"></a>供应商的脚本或代理</h4><p>大多数日志管理方案提供一些脚本或者代理，可以从一个或更多服务器相对容易地发送数据。重量级代理会耗尽额外的系统资源。一些供应商像 Loggly 提供配置脚本，来使用现存的 syslog 守护进程更轻松。这有一个 Loggly 上的例子<a href="https://www.loggly.com/docs/sending-logs-unixlinux-system-setup/" target="_blank" rel="noopener">脚本</a>，它能运行在任意数量的服务器上。</p>
+<hr>
+<p>via: <a href="http://www.loggly.com/ultimate-guide/logging/managing-linux-logs/" target="_blank" rel="noopener">http://www.loggly.com/ultimate-guide/logging/managing-linux-logs/</a></p>
+<p>作者：<a href="https://www.linkedin.com/in/jasonskowronski" target="_blank" rel="noopener">Jason Skowronski</a><br>作者：<a href="https://www.linkedin.com/in/amyecheverri" target="_blank" rel="noopener">Amy Echeverri</a><br>作者：<a href="https://www.linkedin.com/pub/sadequl-hussain/14/711/1a7" target="_blank" rel="noopener">Sadequl Hussain</a><br>译者：<a href="https://github.com/wyangsun" target="_blank" rel="noopener">wyangsun</a><br>校对：<a href="https://github.com/wxy" target="_blank" rel="noopener">wxy</a></p>
+<p>本文由 <a href="https://github.com/LCTT/TranslateProject" target="_blank" rel="noopener">LCTT</a> 原创翻译，<a href="https://linux.cn/" target="_blank" rel="noopener">Linux中国</a> 荣誉推出</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/01/09/Linux-日志管理/" data-id="cjj9qxzhh000jl8539lgmspf3" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/fluentd/">fluentd</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/logstash/">logstash</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rsyslog/">rsyslog</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/syslog-ng/">syslog-ng</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2017/01/13/制作RPM包-zabbix客户端安装/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          制作RPM包-zabbix客户端安装
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/01/09/Mysql工具集/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Mysql工具集</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Linux管理/">Linux管理</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Mysql/">Mysql</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Mysql/">Mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fluentd/">fluentd</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/">http</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/logstash/">logstash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rpm/">rpm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rsyslog/">rsyslog</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/syslog-ng/">syslog-ng</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Mysql/" style="font-size: 10px;">Mysql</a> <a href="/tags/fluentd/" style="font-size: 10px;">fluentd</a> <a href="/tags/http/" style="font-size: 10px;">http</a> <a href="/tags/logstash/" style="font-size: 10px;">logstash</a> <a href="/tags/nginx/" style="font-size: 20px;">nginx</a> <a href="/tags/rpm/" style="font-size: 10px;">rpm</a> <a href="/tags/rsyslog/" style="font-size: 10px;">rsyslog</a> <a href="/tags/syslog-ng/" style="font-size: 10px;">syslog-ng</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2018/07/06/hello-world/">Hello World</a>
+          </li>
+        
+          <li>
+            <a href="/2017/01/13/来自-Linux-基金会内部的《Linux-工作站安全检查清单》/">来自 Linux 基金会内部的《Linux 工作站安全检查清单》</a>
+          </li>
+        
+          <li>
+            <a href="/2017/01/13/制作RPM包-zabbix客户端安装/">制作RPM包-zabbix客户端安装</a>
+          </li>
+        
+          <li>
+            <a href="/2017/01/09/Linux-日志管理/">Linux 日志管理</a>
+          </li>
+        
+          <li>
+            <a href="/2017/01/09/Mysql工具集/">Mysql工具集</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2018 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>制作RPM包-zabbix客户端安装 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="自定义RPM包制作方法，这里只写个zabbix客户端RPM包的生成流程。关于RPM制作的详细说明可以自己上网查。">
+<meta name="keywords" content="rpm">
+<meta property="og:type" content="article">
+<meta property="og:title" content="制作RPM包-zabbix客户端安装">
+<meta property="og:url" content="http://yoursite.com/2017/01/13/制作RPM包-zabbix客户端安装/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="自定义RPM包制作方法，这里只写个zabbix客户端RPM包的生成流程。关于RPM制作的详细说明可以自己上网查。">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2018-07-06T08:56:55.771Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="制作RPM包-zabbix客户端安装">
+<meta name="twitter:description" content="自定义RPM包制作方法，这里只写个zabbix客户端RPM包的生成流程。关于RPM制作的详细说明可以自己上网查。">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-制作RPM包-zabbix客户端安装" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/01/13/制作RPM包-zabbix客户端安装/" class="article-date">
+  <time datetime="2017-01-13T07:10:36.000Z" itemprop="datePublished">2017-01-13</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Linux管理/">Linux管理</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      制作RPM包-zabbix客户端安装
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>自定义RPM包制作方法，这里只写个zabbix客户端RPM包的生成流程。关于RPM制作的详细说明可以自己上网查。</p>
+<a id="more"></a>
+<p>###1.创建目录结构###<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mkdir rpmbuild/&#123;BUILD,BUILDROOT,SOURCES,RPMS,SRPMS,SPECS&#125;</span><br></pre></td></tr></table></figure></p>
+<p>各个目录的功能作用如下：<br>SOURCES：用来存放源码包，打包用到的源码包跟配置文件都在这里。<br>BUILD：解压源码包的路径，源码包编译过程在此目录中执行。<br>BUILDROOT：源码包安装目录<br>SPECS：编译RPM包的脚本文件，文件均以.spec结尾<br>RPMS：生成RPM包的路径<br>SRPM：生成SRPM包的路径</p>
+<p>###2.创建spec文件###<br>在SPECS中创建脚本。推荐使用vim，直接生成文件结构如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># vim zabbix-3.0.2.spec</span><br></pre></td></tr></table></figure></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">Name:#这里写rpm包名</span><br><span class="line">Version:#rpm包的版本号</span><br><span class="line">Release:        1%&#123;?dist&#125; #软件包释出号。一般我们对该软件包做了一些小的补丁的时候就应该把释出号加1。</span><br><span class="line">Summary:#摘要</span><br><span class="line"></span><br><span class="line">Group:#System Environment/Daemons （系统环境/守护）</span><br><span class="line">License:#许可证</span><br><span class="line">URL:#没有用到</span><br><span class="line">Source0:#源码包或配置文件，就是放在SOURCES目录下的东西做个定义，还可以添加Source1，Source2之类。</span><br><span class="line"></span><br><span class="line">BuildRequires:#打RPM包所用到的依赖环境</span><br><span class="line">Requires:#打出的RPM包所用到的依赖</span><br><span class="line"></span><br><span class="line">%description</span><br><span class="line">#详细说明</span><br><span class="line"></span><br><span class="line">%prep</span><br><span class="line">#打包前的预处理过程，比如删除上次打包的文件。</span><br><span class="line">%setup -q -n %&#123;real_name&#125;-%&#123;version&#125; #这个命令会解压源码包。</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">%build</span><br><span class="line">#本段是建立段，所要执行的命令为生成软件包服务，如make 命令。</span><br><span class="line">%configure</span><br><span class="line">make %&#123;?_smp_mflags&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">%install</span><br><span class="line">本段是安装段，其中的命令在安装软件包时将执行，如make install命令。</span><br><span class="line">%make_install</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">%files</span><br><span class="line">本段是文件段，用于定义软件包所包含的文件，分为三类--说明文档（doc），配置文件（config）及执行程序，还可定义文件存取权限，拥有者及组别。</span><br><span class="line">%doc</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">%changelog</span><br></pre></td></tr></table></figure>
+<p>这里只说了大概详细可以参考这个<a href="https://www.ibm.com/developerworks/cn/linux/l-rpm/" target="_blank" rel="noopener">文章</a>。</p>
+<p>###3.准备源码包与配置文件###<br>源码与配置文件存放到SOURCES中<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># tree SOURCES/</span><br><span class="line">SOURCES/</span><br><span class="line">├── zabbix-3.0.2.tar.gz</span><br><span class="line">└── zabbix_agentd.conf</span><br></pre></td></tr></table></figure></p>
+<p>###4.开始打包###<br>具体SPEC文件如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br></pre></td><td class="code"><pre><span class="line"># cat SPECS/zabbix-3.0.2.spec</span><br><span class="line">%define real_name zabbix #这里自定义了一个变量</span><br><span class="line">Name:zabbix-agent</span><br><span class="line">Version:3.0.2</span><br><span class="line">Release:1.CentOS</span><br><span class="line">Summary:zabbix-agent</span><br><span class="line"></span><br><span class="line">Group:System Environment/Daemons</span><br><span class="line">License:GPL</span><br><span class="line"></span><br><span class="line">Source0:%&#123;real_name&#125;-%&#123;version&#125;.tar.gz</span><br><span class="line">Source1:zabbix_agentd.conf</span><br><span class="line"></span><br><span class="line">BuildRoot:%(mktemp -ud %&#123;_tmppath&#125;/%&#123;real_name&#125;-%&#123;version&#125;-%&#123;release&#125;-XXXXXX)</span><br><span class="line">BuildRequires:gcc make</span><br><span class="line">Requires:gcc</span><br><span class="line">Autoreq:0</span><br><span class="line"></span><br><span class="line">%description</span><br><span class="line">zabbix agent</span><br><span class="line"></span><br><span class="line">%prep</span><br><span class="line">rm -rf $RPM_BUILD_ROOT</span><br><span class="line">rm -rf $RPM_BUILD_DIR/%&#123;real_name&#125;-%&#123;version&#125;</span><br><span class="line">%setup -q -n %&#123;real_name&#125;-%&#123;version&#125;</span><br><span class="line"></span><br><span class="line">%build</span><br><span class="line">./configure --prefix=/usr/local/zabbix-agent \</span><br><span class="line">--enable-agent</span><br><span class="line">make</span><br><span class="line"></span><br><span class="line">%install</span><br><span class="line">make install DESTDIR=%&#123;buildroot&#125;</span><br><span class="line">mkdir -p %&#123;buildroot&#125;/etc/init.d</span><br><span class="line">cp -a $RPM_BUILD_DIR/%&#123;real_name&#125;-%&#123;version&#125;/misc/init.d/fedora/core/zabbix_agentd %&#123;buildroot&#125;/etc/init.d/</span><br><span class="line">cp -a %&#123;SOURCE1&#125; %&#123;buildroot&#125;/usr/local/zabbix-agent/etc/</span><br><span class="line"></span><br><span class="line">%pre</span><br><span class="line">if ! /usr/bin/id zabbix &amp;&gt; /dev/null;then</span><br><span class="line">   /usr/sbin/useradd -s /sbin/nologin zabbix &amp;&gt;dev/null</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">%post</span><br><span class="line">echo &quot;zabbix-agent    10050/tcp # Zabbix Agent&quot; &gt;&gt; /etc/services</span><br><span class="line">echo &quot;zabbix-agent    10050/udp # Zabbix Agent&quot; &gt;&gt; /etc/services</span><br><span class="line">echo &quot;zabbix-trapper  10051/tcp # Zabbix Trapper&quot; &gt;&gt; /etc/services</span><br><span class="line">echo &quot;zabbix-trapper  10051/udp # Zabbix Trapper&quot; &gt;&gt; /etc/services</span><br><span class="line">sed -i &apos;s/BASEDIR=\/usr\/local/BASEDIR=\/usr\/local\/zabbix-agent/g&apos; /etc/init.d/zabbix_agentd</span><br><span class="line">chmod +x /etc/init.d/zabbix_agentd</span><br><span class="line">hostname=`hostname`</span><br><span class="line">sed -i &quot;s/ZABBIXSERVER/$hostname/&quot; /usr/local/zabbix-agent/etc/zabbix_agentd.conf</span><br><span class="line">chkconfig zabbix_agentd on</span><br><span class="line"></span><br><span class="line">%preun</span><br><span class="line">/sbin/service zabbix_agentd stop &gt;/dev/null 2&gt;&amp;1</span><br><span class="line">/sbin/chkconfig --del zabbix_agentd</span><br><span class="line"></span><br><span class="line">%postun</span><br><span class="line">rm -rf /usr/local/zabbix &amp;&gt;/dev/null</span><br><span class="line">rm -rf /etc/init.d/zabbix* &amp;&gt;/dev/null</span><br><span class="line">sed -i &apos;/^zabbix.*/d&apos; /etc/services</span><br><span class="line">/usr/sbin/userdel -r zabbix &amp;&gt;/dev/null</span><br><span class="line"></span><br><span class="line">%clean</span><br><span class="line">rm -rf %&#123;buildroot&#125;</span><br><span class="line">rm -rf $RPM_BUILD_DIR/%&#123;real_name&#125;-%&#123;version&#125;</span><br><span class="line"></span><br><span class="line">%files</span><br><span class="line">%defattr(-,root,root,-)</span><br><span class="line">%doc</span><br><span class="line">/usr/local/zabbix-agent</span><br><span class="line">/etc/init.d/zabbix_agentd</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">%changelog</span><br><span class="line">* Fri Jan 13 2017 wangyang</span><br><span class="line">-v1 compile</span><br></pre></td></tr></table></figure></p>
+<p>生成rpm包命令:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rpmbuild -ba zabbix-3.0.2.spec</span><br></pre></td></tr></table></figure></p>
+<p>查看生成文件：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"># tree</span><br><span class="line">.</span><br><span class="line">├── BUILD</span><br><span class="line">├── BUILDROOT</span><br><span class="line">├── RPMS</span><br><span class="line">│   └── x86_64</span><br><span class="line">│       ├── zabbix-agent-3.0.2-CentOS.x86_64.rpm</span><br><span class="line">│       └── zabbix-agent-debuginfo-3.0.2-CentOS.x86_64.rpm</span><br><span class="line">├── SOURCES</span><br><span class="line">│   ├── zabbix-3.0.2.tar.gz</span><br><span class="line">│   └── zabbix_agentd.conf</span><br><span class="line">├── SPECS</span><br><span class="line">│   └── zabbix-3.0.2.spec</span><br><span class="line">└── SRPMS</span><br><span class="line">    └── zabbix-agent-3.0.2-CentOS.src.rpm</span><br></pre></td></tr></table></figure>
+<p>zabbix客户端rpm包就是他了：zabbix-agent-3.0.2-CentOS.x86_64.rpm</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/01/13/制作RPM包-zabbix客户端安装/" data-id="cjj9qxzh10006l853mzs877kl" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/rpm/">rpm</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2017/01/13/来自-Linux-基金会内部的《Linux-工作站安全检查清单》/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          来自 Linux 基金会内部的《Linux 工作站安全检查清单》
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/01/09/Linux-日志管理/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Linux 日志管理</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Linux管理/">Linux管理</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Mysql/">Mysql</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Mysql/">Mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fluentd/">fluentd</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/">http</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/logstash/">logstash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rpm/">rpm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rsyslog/">rsyslog</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/syslog-ng/">syslog-ng</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Mysql/" style="font-size: 10px;">Mysql</a> <a href="/tags/fluentd/" style="font-size: 10px;">fluentd</a> <a href="/tags/http/" style="font-size: 10px;">http</a> <a href="/tags/logstash/" style="font-size: 10px;">logstash</a> <a href="/tags/nginx/" style="font-size: 20px;">nginx</a> <a href="/tags/rpm/" style="font-size: 10px;">rpm</a> <a href="/tags/rsyslog/" style="font-size: 10px;">rsyslog</a> <a href="/tags/syslog-ng/" style="font-size: 10px;">syslog-ng</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2018/07/06/hello-world/">Hello World</a>
+          </li>
+        
+          <li>
+            <a href="/2017/01/13/来自-Linux-基金会内部的《Linux-工作站安全检查清单》/">来自 Linux 基金会内部的《Linux 工作站安全检查清单》</a>
+          </li>
+        
+          <li>
+            <a href="/2017/01/13/制作RPM包-zabbix客户端安装/">制作RPM包-zabbix客户端安装</a>
+          </li>
+        
+          <li>
+            <a href="/2017/01/09/Linux-日志管理/">Linux 日志管理</a>
+          </li>
+        
+          <li>
+            <a href="/2017/01/09/Mysql工具集/">Mysql工具集</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2018 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

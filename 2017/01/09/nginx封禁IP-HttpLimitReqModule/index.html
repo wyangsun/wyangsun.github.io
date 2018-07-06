@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>nginx封禁IP--HttpLimitReqModule | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="由于线上换进屡遭外挂频繁访问，遂调研使用了nginx的HttpLimitReqModule模块，这次仅说明一下频次限制的使用，流量限制不涉及。">
+<meta name="keywords" content="nginx">
+<meta property="og:type" content="article">
+<meta property="og:title" content="nginx封禁IP--HttpLimitReqModule">
+<meta property="og:url" content="http://yoursite.com/2017/01/09/nginx封禁IP-HttpLimitReqModule/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="由于线上换进屡遭外挂频繁访问，遂调研使用了nginx的HttpLimitReqModule模块，这次仅说明一下频次限制的使用，流量限制不涉及。">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2018-07-06T08:56:55.771Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="nginx封禁IP--HttpLimitReqModule">
+<meta name="twitter:description" content="由于线上换进屡遭外挂频繁访问，遂调研使用了nginx的HttpLimitReqModule模块，这次仅说明一下频次限制的使用，流量限制不涉及。">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-nginx封禁IP-HttpLimitReqModule" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/01/09/nginx封禁IP-HttpLimitReqModule/" class="article-date">
+  <time datetime="2017-01-09T07:47:13.000Z" itemprop="datePublished">2017-01-09</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      nginx封禁IP--HttpLimitReqModule
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>由于线上换进屡遭外挂频繁访问，遂调研使用了nginx的HttpLimitReqModule模块，这次仅说明一下频次限制的使用，流量限制不涉及。</p>
+<a id="more"></a>
+<p>1.使用方法</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">http&#123;</span><br><span class="line">   ...</span><br><span class="line">   #定义一个名为allips的limit_req_zone用来存储session，大小是10M内存，</span><br><span class="line">   #以$binary_remote_addr 为key,限制平均每秒的请求为20个，</span><br><span class="line">   #1M能存储16000个状态，rete的值必须为整数，</span><br><span class="line">   #如果限制两秒钟一个请求，可以设置成30r/m</span><br><span class="line">   </span><br><span class="line">   limit_req_zone $binary_remote_addr zone=allips:10m rate=20r/s;</span><br><span class="line">   ...</span><br><span class="line">   server&#123;</span><br><span class="line">       ...</span><br><span class="line">       location&#123;</span><br><span class="line">           ...</span><br><span class="line">           #限制每ip每秒不超过20个请求，漏桶数burst为5</span><br><span class="line">           #brust的意思就是，如果第1秒、2,3,4秒请求为19个，</span><br><span class="line">           #第5秒的请求为25个是被允许的。</span><br><span class="line">           #但是如果你第1秒就25个请求，第2秒超过20的请求返回503错误。</span><br><span class="line">           #nodelay，如果不设置该选项，严格使用平均速率限制请求数，</span><br><span class="line">           #第1秒25个请求时，5个请求放到第2秒执行，</span><br><span class="line">           #设置nodelay，25个请求将在第1秒执行。</span><br><span class="line">           limit_req zone=allips burst=5 nodelay;</span><br><span class="line">           ...&#123;&#125;</span><br><span class="line">      &#125;</span><br><span class="line">       ...</span><br><span class="line">   &#125;</span><br><span class="line">   ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>2.计算当前最大允许请求数</p>
+<p>已知:rate=a r/s(每隔1/a秒一次) burst=b（b1为上一个请求使用剩余的b，n为b的最大值。上述例子中设定的burst=5，则n=5） t（s）为距离上次请求的间隔时间。<br>关于rate与burst使用与验证<br>rate定义允许请求数严格按照间隔秒数通过，如:10r/s==间隔0.1秒允许下一次请求，再如:20r/m==间隔3秒允许下一次请求。<br>burst是一个突发值，但是这个突发值是使用之前未使用的请求数，如果用完，还是严格按照之前定义的rate来计算允许的请求。如果在相应的时间间隔内没有请求，则恢复相应的突发值。<br>测试验证过程：设置rate=20r/m（1/3r/s），burst=5。<br>测试用例1：第一次发起7次请求，根据上述公式可以计算出q=6，则失败一个，b1=0。间隔9秒(t=9)，此时b计算得出=2，第二次发起6次请求，计算得出q=3，b1=0。间隔12秒(t=12)，b=3，第三次发起6次请求，q=4。<br>命令：<code>ab -n 7 http://。。。 |grep requests;sleep 9;ab -n 6 http://。。。\|grep requests;sleep 12;ab -n 6 http://。。。\|grep requests</code><br>结果：<br>Complete requests:      7<br>Failed requests:        1<br>…<br>Complete requests:      6<br>Failed requests:        3<br>…<br>Complete requests:      6<br>Failed requests:        2<br>测试用例2：(测试b的累积与使用)<br>与第一个测试不同点在于第二次的请求数变为2。<br>第一次b=5,q=6,b1=0。第二次b=2,q=3但是只有2个请求，所以b1=1。第三次计算得出b=4，q=5。命令：ab -n 6http://。。。 |grep requests;sleep 9;ab -n 2 http://。。。|grep requests;sleep 12;ab -n 6 http://。。。|grep requests<br>结果：<br>Complete requests: 6 Failed requests: 0<br>… Complete requests: 2 Failed requests: 0<br>… Complete requests: 6 Failed requests: 1<br>上述用例基本验证了推出公式的正确性。</p>
+<p>参考文章<br>[nginx限制某个IP同一时间段的访问次数][<a href="http://www.nginx.cn/446.html]" target="_blank" rel="noopener">http://www.nginx.cn/446.html]</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/01/09/nginx封禁IP-HttpLimitReqModule/" data-id="cjj9qxzgy0004l853d9x760le" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/nginx/">nginx</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2017/01/09/关于http协议-断点续传（状态码206）/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          关于http协议-断点续传（状态码206）
+        
+      </div>
+    </a>
+  
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Linux管理/">Linux管理</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Mysql/">Mysql</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Mysql/">Mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fluentd/">fluentd</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/">http</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/logstash/">logstash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rpm/">rpm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rsyslog/">rsyslog</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/syslog-ng/">syslog-ng</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Mysql/" style="font-size: 10px;">Mysql</a> <a href="/tags/fluentd/" style="font-size: 10px;">fluentd</a> <a href="/tags/http/" style="font-size: 10px;">http</a> <a href="/tags/logstash/" style="font-size: 10px;">logstash</a> <a href="/tags/nginx/" style="font-size: 20px;">nginx</a> <a href="/tags/rpm/" style="font-size: 10px;">rpm</a> <a href="/tags/rsyslog/" style="font-size: 10px;">rsyslog</a> <a href="/tags/syslog-ng/" style="font-size: 10px;">syslog-ng</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2018/07/06/hello-world/">Hello World</a>
+          </li>
+        
+          <li>
+            <a href="/2017/01/13/来自-Linux-基金会内部的《Linux-工作站安全检查清单》/">来自 Linux 基金会内部的《Linux 工作站安全检查清单》</a>
+          </li>
+        
+          <li>
+            <a href="/2017/01/13/制作RPM包-zabbix客户端安装/">制作RPM包-zabbix客户端安装</a>
+          </li>
+        
+          <li>
+            <a href="/2017/01/09/Linux-日志管理/">Linux 日志管理</a>
+          </li>
+        
+          <li>
+            <a href="/2017/01/09/Mysql工具集/">Mysql工具集</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2018 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

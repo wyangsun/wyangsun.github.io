@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+
+  
+  <title>关于http协议-断点续传（状态码206） | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="此文章为nginx代理服务器断点续传功能测试，并通过测试说明断点续传的实现。（当然如果是源服务器，基本上都是支持断点续传的）">
+<meta name="keywords" content="nginx,http">
+<meta property="og:type" content="article">
+<meta property="og:title" content="关于http协议-断点续传（状态码206）">
+<meta property="og:url" content="http://yoursite.com/2017/01/09/关于http协议-断点续传（状态码206）/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="此文章为nginx代理服务器断点续传功能测试，并通过测试说明断点续传的实现。（当然如果是源服务器，基本上都是支持断点续传的）">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2018-07-06T08:56:55.772Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="关于http协议-断点续传（状态码206）">
+<meta name="twitter:description" content="此文章为nginx代理服务器断点续传功能测试，并通过测试说明断点续传的实现。（当然如果是源服务器，基本上都是支持断点续传的）">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-关于http协议-断点续传（状态码206）" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/01/09/关于http协议-断点续传（状态码206）/" class="article-date">
+  <time datetime="2017-01-09T08:08:18.000Z" itemprop="datePublished">2017-01-09</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      关于http协议-断点续传（状态码206）
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>此文章为nginx代理服务器断点续传功能测试，并通过测试说明断点续传的实现。（当然如果是源服务器，基本上都是支持断点续传的）</p>
+<a id="more"></a>
+<p>请求测试：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">wget -SO /dev/null --header=&quot;X-Backend: download.thinkbroadband.com&quot; --header=&quot;X-Backend-Port: 80&quot; --header=&quot;Range: bytes=50-&quot; localhost/5MB.zip</span><br><span class="line">--2013-07-02 22:43:30--  http://localhost/5MB.zip</span><br><span class="line">Resolving localhost... 127.0.0.1, ::1</span><br><span class="line">Connecting to localhost|127.0.0.1|:80... connected.</span><br><span class="line">HTTP request sent, awaiting response...</span><br><span class="line"> HTTP/1.1 200 OK</span><br><span class="line"> Server: nginx/0.8.54</span><br><span class="line"> Date: Tue, 02 Jul 2013 14:43:31 GMT</span><br><span class="line"> Content-Type: application/zip</span><br><span class="line"> Connection: keep-alive</span><br><span class="line"> Last-Modified: Mon, 02 Jun 2008 15:30:42 GMT</span><br><span class="line"> ETag: &quot;11f000b-500000-44eb0adaf4c80&quot;</span><br><span class="line"> Accept-Ranges: bytes</span><br><span class="line"> Content-Length: 5242880</span><br><span class="line"> Access-Control-Allow-Origin: *</span><br><span class="line"> X-Cached: MISS</span><br><span class="line">Length: 5242880 (5.0M) [application/zip]</span><br><span class="line">Saving to: `/dev/null&apos;</span><br><span class="line"></span><br><span class="line">100%[==========================================================================================&gt;] 5,242,880    638K/s   in 11s    </span><br><span class="line"></span><br><span class="line">2013-07-02 22:43:43 (453 KB/s) - `/dev/null&apos; saved [5242880/5242880]</span><br></pre></td></tr></table></figure></p>
+<p>第一次请求时nginx代理上还没有文件的缓存，所以cache miss，代理服务器会全部保存到缓存。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">root@wangyangtest:/var/cache/nginx# ls</span><br><span class="line">07</span><br><span class="line">root@wangyangtest:/var/cache/nginx# ll 07/a6/a3/ac136536ba7bb4171654401eb2a3a607</span><br><span class="line">-rw-------  1 nobody  wheel  5243220 Jul  2 22:43 07/a6/a3/ac136536ba7bb4171654401eb2a3a607</span><br></pre></td></tr></table></figure></p>
+<p>发起续传请求：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">root@wangyangtest:/var/cache/nginx# wget -SO /dev/null --header=&quot;X-Backend: download.thinkbroadband.com&quot; --header=&quot;X-Backend-Port: 80&quot; --header=&quot;Range: bytes=50-&quot; localhost/5MB.zip</span><br><span class="line">--2013-07-02 22:43:48--  http://localhost/5MB.zip</span><br><span class="line">Resolving localhost... 127.0.0.1, ::1</span><br><span class="line">Connecting to localhost|127.0.0.1|:80... connected.</span><br><span class="line">HTTP request sent, awaiting response...</span><br><span class="line"> HTTP/1.1 206 Partial Content</span><br><span class="line"> Server: nginx/0.8.54</span><br><span class="line"> Date: Tue, 02 Jul 2013 14:43:48 GMT</span><br><span class="line"> Content-Type: application/zip</span><br><span class="line"> Content-Length: 5242830</span><br><span class="line"> Connection: keep-alive</span><br><span class="line"> Last-Modified: Mon, 02 Jun 2008 15:30:42 GMT</span><br><span class="line"> ETag: &quot;11f000b-500000-44eb0adaf4c80&quot;</span><br><span class="line"> Access-Control-Allow-Origin: *</span><br><span class="line"> X-Cached: HIT</span><br><span class="line"> Content-Range: bytes 50-5242879/5242880</span><br></pre></td></tr></table></figure></p>
+<p>客户端再次发起续传请求，首先要检查Cached，如果命中则正常返回206续传</p>
+<p>参考文章：<br>[Nginx代理与请求测试][<a href="http://nginx.2469901.n2.nabble.com/nginx-amp-Range-header-amp-proxy-cache-td6786959.html]" target="_blank" rel="noopener">http://nginx.2469901.n2.nabble.com/nginx-amp-Range-header-amp-proxy-cache-td6786959.html]</a><br>[HTTP协议header头域][<a href="http://www.iwms.net/n2030c40.aspx]" target="_blank" rel="noopener">http://www.iwms.net/n2030c40.aspx]</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/01/09/关于http协议-断点续传（状态码206）/" data-id="cjj9qxzh00005l853wa0ruh1m" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/http/">http</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/nginx/">nginx</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2017/01/09/Mysql工具集/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Mysql工具集
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/01/09/nginx封禁IP-HttpLimitReqModule/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">nginx封禁IP--HttpLimitReqModule</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Linux管理/">Linux管理</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/Mysql/">Mysql</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Mysql/">Mysql</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/fluentd/">fluentd</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/http/">http</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/logstash/">logstash</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/nginx/">nginx</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rpm/">rpm</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/rsyslog/">rsyslog</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/syslog-ng/">syslog-ng</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/Mysql/" style="font-size: 10px;">Mysql</a> <a href="/tags/fluentd/" style="font-size: 10px;">fluentd</a> <a href="/tags/http/" style="font-size: 10px;">http</a> <a href="/tags/logstash/" style="font-size: 10px;">logstash</a> <a href="/tags/nginx/" style="font-size: 20px;">nginx</a> <a href="/tags/rpm/" style="font-size: 10px;">rpm</a> <a href="/tags/rsyslog/" style="font-size: 10px;">rsyslog</a> <a href="/tags/syslog-ng/" style="font-size: 10px;">syslog-ng</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2018/07/">July 2018</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/01/">January 2017</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2018/07/06/hello-world/">Hello World</a>
+          </li>
+        
+          <li>
+            <a href="/2017/01/13/来自-Linux-基金会内部的《Linux-工作站安全检查清单》/">来自 Linux 基金会内部的《Linux 工作站安全检查清单》</a>
+          </li>
+        
+          <li>
+            <a href="/2017/01/13/制作RPM包-zabbix客户端安装/">制作RPM包-zabbix客户端安装</a>
+          </li>
+        
+          <li>
+            <a href="/2017/01/09/Linux-日志管理/">Linux 日志管理</a>
+          </li>
+        
+          <li>
+            <a href="/2017/01/09/Mysql工具集/">Mysql工具集</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2018 John Doe<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>
